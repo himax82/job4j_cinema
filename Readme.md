@@ -1,1 +1,2 @@
 [![Build Status](https://app.travis-ci.com/himax82/job4j_cinema.svg?branch=master)](https://app.travis-ci.com/himax82/job4j_cinema)
+[![codecov](https://codecov.io/gh/himax82/job4j_cinema/branch/master/graph/badge.svg?token=QJSYYNKB2L)](https://codecov.io/gh/himax82/job4j_cinema)
