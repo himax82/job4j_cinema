@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Оплата заказа</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+<script>
+    let SESSION_ID;
+    let PLACE;
+    let outpl = '';
+    $(document).ready(function () {
+        outTitle();
+    });
+    function outTitle() {
+        let params = new URLSearchParams(document.location.search.substring(1));
+        SESSION_ID = +params.get("session_id");
+        PLACE = params.get("place");
+        let arpl = PLACE.split(',');
+        let session = null;
+        if (SESSION_ID === 1) {
+            session = '10:30';
+        } else if (SESSION_ID === 2) {
+            session = '12:30';
+        } else if (SESSION_ID === 3) {
+            session = '14:30';
+        } else if (SESSION_ID === 4) {
+            session = '17:30';
+        } else if (SESSION_ID === 5) {
+            session = '20:00';
+        }
+        let text = 'Вы выбрали сеанс на ' + session;
+        let i = 0;
+        for (let pl of arpl) {
+            let ar = pl.split('');
+            if (ar[i++] !== undefined) {
+                text += ' ряд ' + ar[0] + ' место ' + ar[1];
+                outpl += ar[0] + ar[1] + ';';
+            }
+        }
+        let price = (arpl.length - 1) * 500;
+        text += ' Сумма : ' + price + ' рублей. '
+        $('#title').text(text);
+    }
+
+    function validate() {
+        let items = [];
+        if ($('#username').val() === "") {
+            alert("Введите ФИО");
+            return false;
+        }
+        if ($('#email').val() === '') {
+            alert("Введите фамилию");
+            return false;
+        }
+        if ($('#phone').val() === '') {
+            alert("Введите фамилию");
+            return false;
+        }
+        return true;
+    }
+    function payment() {
+        $('#notification').prop("style", "color: red");
+        if (validate()) {
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:9000/cinema/hall',
+                data: JSON.stringify({
+                    sessionId: SESSION_ID,
+                    place: outpl,
+                    account: {
+                        username: $('#username').val(),
+                        email: $('#email').val(),
+                        phone: $('#phone').val()
+                    }
+                }),
+                dataType: 'text'
+            }).done(function (data) {
+                if (data === '200 OK') {
+                    $('#notification').prop("style", "color: blue");
+                    $('#notification').text('Билеты успешно забронированы.');
+                        window.location.href = 'http://localhost:9000/cinema/index.html';
+                } else {
+                    $('#notification').text('Места не удалось забронировать');
+                    console.log(data);
+                }
+            }).fail(function (err) {
+                console.log(err);
+            });
+        }
+    }
+</script>
+<div class="container">
+    <div class="row pt-3">
+        <h3 id="title"></h3>
+    </div>
+    <div class="row">
+        <form>
+            <div class="form-group">
+                <label for="username">ФИО</label>
+                <input type="text" class="form-control" id="username" placeholder="ФИО">
+            </div>
+            <div class="form-group">
+                <label for="phone">Номер телефона</label>
+                <input type="text" class="form-control" id="phone" data-inputmask="'alias': 'phone'" placeholder="Номер телефона">
+            </div>
+            <div class="form-group">
+                <label for="phone">Электронная почта</label>
+                <input type="text" class="form-control" id="email" data-inputmask="'alias': 'email'" placeholder="Email">
+            </div>
+            <button type="button" class="btn btn-success" onclick="payment()">Оплатить</button>
+        </form>
+    </div>
+    <div class="row pt-3">
+        <label id="notification" style="color: #ff0d0d"></label>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>CinemaPack!</title>
+</head>
+<body>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" ></script>
+<script>
+    let session = 1;
+    const timeout = 15000;
+
+    $(document).ready(function () {
+        getTickets();
+        setTimeout(refresh, timeout);
+    });
+
+    function refresh(){
+        getTickets();
+        setTimeout(refresh, timeout);
+    }
+
+    function changeSession(vSession) {
+        if (session !== vSession) {
+            session = vSession;
+            getTickets();
+        }
+    }
+    function getTickets() {
+        $('input:checkbox').each(function() {
+                $(this).prop("checked", false);
+                let arr = (this.value).split('');
+                $('#labelPlace' + this.value).text(' Ряд ' + arr[0] + ', Место ' + arr[1]);
+        });
+        $.ajax({
+            type: 'GET',
+            url: 'http://localhost:9000/cinema/hall?id_session=' + session,
+            dataType: 'json'
+        }).done(function (data) {
+            for (let item of data) {
+               $('#place' + item.row + item.cell).prop("disable", true);
+                $('#labelPlace' + item.row + item.cell).text(' Ряд ' + item.row + ', Место ' + item.cell + ' (занято)').css('color', 'red');
+            }
+        }).fail(function (err) {
+            console.log(err);
+        });
+    }
+    function goToPay() {
+        let checked ='';
+        $('input[name="place"]:checkbox:checked').each(function () {
+            if (checked !== undefined) {
+                checked += $(this).val();
+                checked += ",";
+            }
+        });
+        if (checked !== '') {
+            let s = 'session_id=' + session;
+            let href = 'http://localhost:9000/cinema/payment.html';
+            window.location.href = href + '?' + s + '&' + 'place=' + checked;
+        } else {
+            alert('Выберите место для кинопросмотра!');
+        }
+    }
+</script>
+<div class="container">
+    <div class="row pt-3">
+        <h4>
+            Бронирование места на сеанс
+        </h4>
+    </div>
+        <div class="row pt-3">
+            <div class="btn-group -btn-grouptoggle" data-toggle="buttons">
+                <label class="btn btn-primary active">
+                    <input type="radio" name="sessions" id="session1" autocomplete="off" onchange="changeSession(1)"> 10:30
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="sessions" id="session2" autocomplete="off" onchange="changeSession(2)"> 12:30
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="sessions" id="session3" autocomplete="off" onchange="changeSession(3)"> 14:30
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="sessions" id="session4" autocomplete="off" onchange="changeSession(4)"> 17:30
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="sessions" id="session5" autocomplete="off" onchange="changeSession(5)"> 20:00
+                </label>
+            </div>
+        </div>
+    <div class="row pt-3">
+        <table class="table table-bordered" >
+            <thead>
+            <tr>
+                <th style="width: 120px;">Ряд / Место</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th>1</th>
+                <td><input type="checkbox" id="place11" name="place" value='11'>
+                    <label for="place11" id="labelPlace11">Ряд 1, Место 1</label>
+                </td>
+                <td><input type="checkbox" id="place12" name="place" value='12'>
+                    <label for="place12" id="labelPlace12">Ряд 1, Место 2</label>
+                </td>
+                <td><input type="checkbox" id="place13" name="place" value='13'>
+                    <label for="place13" id="labelPlace13">Ряд 1, Место 3</label>
+                </td>
+            </tr>
+            <tr>
+                <th>2</th>
+                <td><input type="checkbox" id="place21" name="place" value='21'>
+                    <label for="place21" id="labelPlace21">Ряд 2, Место 1</label>
+                </td>
+                <td><input type="checkbox" id="place22" name="place" value='22'>
+                    <label for="place22" id="labelPlace22">Ряд 2, Место 2</label>
+                </td>
+                <td><input type="checkbox" id="place23" name="place" value='23'>
+                    <label for="place23" id="labelPlace23">Ряд 2, Место 3</label>
+                </td>
+            </tr>
+            <tr>
+                <th>3</th>
+                <td><input type="checkbox" id="place31" name="place" value='31'>
+                    <label for="place31" id="labelPlace31">Ряд 3, Место 1</label>
+                </td>
+                <td><input type="checkbox" id="place32" name="place" value='32'>
+                    <label for="place32" id="labelPlace32">Ряд 3, Место 2</label>
+                </td>
+                <td><input type="checkbox" id="place33" name="place" value='33'>
+                    <label for="place33" id="labelPlace33">Ряд 3, Место 3</label>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row float-right">
+        <button type="button" class="btn btn-success" onclick="goToPay()">Оплатить</button>
+    </div>
+</div>
+</body>
+</html>
