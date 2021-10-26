@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,13 +31,13 @@ public class SqlStore implements Store {
                 new FileReader("C:\\Users\\user\\IdeaProjects\\job4j_cinema\\db.properties")
         )) {
             cfg.load(io);
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+        } catch (IOException e) {
+            LOG.error("Not Found file db.properties");
         }
         try {
             Class.forName(cfg.getProperty("jdbc.driver"));
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
+        } catch (ClassNotFoundException e) {
+            LOG.error("Class not found in classpath");
         }
         pool.setDriverClassName(cfg.getProperty("jdbc.driver"));
         pool.setUrl(cfg.getProperty("jdbc.url"));
