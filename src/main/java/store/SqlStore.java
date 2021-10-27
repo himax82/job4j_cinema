@@ -104,7 +104,8 @@ public class SqlStore implements Store {
                         ticket.setId(rs.getInt(1));
                     }
                 }
-            } catch (SQLIntegrityConstraintViolationException ignored) {
+            } catch (SQLIntegrityConstraintViolationException e) {
+                LOG.error("SQL violation of uniqueness", e);
             }
         } catch (Exception e) {
             LOG.error("SQL Create Error", e);
